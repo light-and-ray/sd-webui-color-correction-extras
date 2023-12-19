@@ -36,7 +36,7 @@ def applyColorCorrectionMethod(method, targetImage, sampleImage):
             color_correction_func = wavelet_color_fix
         else:
             color_correction_func = adain_color_fix
-        
+
     return color_correction_func(targetImage, sampleImage)
 
 
@@ -55,8 +55,11 @@ class ColorCorrectionExtras(scripts_postprocessing.ScriptPostprocessing):
                     method = gr.Dropdown(METHODS, label="Method", value='A1111')
                 except ImportError:
                     METHODS = ['A1111']
-                    method = gr.Textbox(value='A1111', visible=False)
-                extraProcess = gr.Checkbox(False, label="Extra use all methods", visible=extraImagesAvaliable())
+                    method = gr.Textbox(value='A1111', visible=False)         
+                extraProcessVisiable = extraImagesAvaliable()
+                if len(METHODS) == 1:
+                    extraProcessVisiable = False
+                extraProcess = gr.Checkbox(False, label="Extra use all methods", visible=extraProcessVisiable)
         args = {
             'img': img,
             'enable': enable,
@@ -72,7 +75,7 @@ class ColorCorrectionExtras(scripts_postprocessing.ScriptPostprocessing):
         sampleImage = args['img']
         method = args['method']
         extraProcess = args['extraProcess']
-                
+
         pp.image = applyColorCorrectionMethod(method, targetImage, sampleImage)
         pp.info[NAME] = method
 
