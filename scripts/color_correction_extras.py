@@ -9,9 +9,13 @@ NAME = 'Color Correction'
 METHODS = ['A1111', 'Wavelet', 'AdaIN']
 
 def extraImagesAvaliable():
-    if packaging.version.parse(launch.git_tag()) >= packaging.version.parse("1.7.0"):
-        return True
-    else:
+    try:
+        if packaging.version.parse(launch.git_tag()) >= packaging.version.parse("1.7.0"):
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f'[{NAME}]: {e}')
         return False
 
 
