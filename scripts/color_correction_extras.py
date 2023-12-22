@@ -1,22 +1,14 @@
 from modules.processing import apply_color_correction, setup_color_correction
 import gradio as gr
 from modules import scripts_postprocessing
-import launch
-import packaging.version
 import copy
 
 NAME = 'Color Correction'
-METHODS = ['A1111', 'Wavelet', 'AdaIN']
+METHODS = None
 
 def extraImagesAvaliable():
-    try:
-        if packaging.version.parse(launch.git_tag()) >= packaging.version.parse("1.7.0"):
-            return True
-        else:
-            return False
-    except Exception as e:
-        print(f'[{NAME}]: {e}')
-        return False
+    pp = scripts_postprocessing.PostprocessedImage(None)
+    return hasattr(pp, 'extra_images')
 
 
 
@@ -56,6 +48,7 @@ class ColorCorrectionExtras(scripts_postprocessing.ScriptPostprocessing):
             with gr.Row():
                 try:
                     from srmodule.colorfix import adain_color_fix, wavelet_color_fix
+                    METHODS = ['A1111', 'Wavelet', 'AdaIN']
                     method = gr.Dropdown(METHODS, label="Method", value='A1111')
                 except ImportError:
                     METHODS = ['A1111']
