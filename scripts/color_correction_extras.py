@@ -10,6 +10,11 @@ def extraImagesAvaliable():
     pp = scripts_postprocessing.PostprocessedImage(None)
     return hasattr(pp, 'extra_images')
 
+if hasattr(scripts_postprocessing.ScriptPostprocessing, 'process_firstpass'):  # webui >= 1.7
+    from modules.ui_components import InputAccordion
+else:
+    InputAccordion = None
+
 
 
 def a1111_color_correction(targetImage, sampleImage):
@@ -38,12 +43,17 @@ def applyColorCorrectionMethod(method, targetImage, sampleImage):
 
 class ColorCorrectionExtras(scripts_postprocessing.ScriptPostprocessing):
     name = NAME
-    order = 19000
+    order = 21000
 
     def ui(self):
         global METHODS
-        with gr.Accordion(NAME, open=False):
-            enable = gr.Checkbox(False, label="Enable")
+        with (
+            InputAccordion(False, label=NAME) if InputAccordion
+            else gr.Accordion(NAME, open=False)
+            as enable
+        ):
+            if not InputAccordion:
+                enable = gr.Checkbox(False, label="Enable")
             img = gr.Image(label="Sample Image", source="upload", interactive=True, type="pil", elem_id="image")   
             with gr.Row():
                 try:
