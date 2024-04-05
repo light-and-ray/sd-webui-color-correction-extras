@@ -38,6 +38,7 @@ def applyColorCorrectionMethod(method, targetImage, sampleImage):
         else:
             color_correction_func = adain_color_fix
 
+    print('Appling color correction', method)
     return color_correction_func(targetImage, sampleImage)
 
 
