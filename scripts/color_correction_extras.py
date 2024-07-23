@@ -16,6 +16,15 @@ else:
     InputAccordion = None
 
 
+colorfix = None
+try:
+    from modules import colorfix
+except ImportError:
+    try:
+        from srmodule import colorfix
+    except ImportError:
+        pass
+
 
 def a1111_color_correction(targetImage, sampleImage):
     return apply_color_correction(setup_color_correction(sampleImage), targetImage)
@@ -25,7 +34,6 @@ def applyColorCorrectionMethod(method, targetImage, sampleImage):
     if method == 'A1111':
         color_correction_func = a1111_color_correction
     else:
-        from srmodule.colorfix import adain_color_fix, wavelet_color_fix
         if targetImage.mode == "RGBA":
             targetImage = targetImage.convert(mode = "RGB")
         if sampleImage.mode == "RGBA":
@@ -34,9 +42,9 @@ def applyColorCorrectionMethod(method, targetImage, sampleImage):
             sampleImage = sampleImage.resize(targetImage.size)
 
         if method == 'Wavelet':
-            color_correction_func = wavelet_color_fix
+            color_correction_func = colorfix.wavelet_color_fix
         else:
-            color_correction_func = adain_color_fix
+            color_correction_func = colorfix.adain_color_fix
 
     print('Appling color correction', method)
     return color_correction_func(targetImage, sampleImage)
@@ -55,15 +63,14 @@ class ColorCorrectionExtras(scripts_postprocessing.ScriptPostprocessing):
         ):
             if not InputAccordion:
                 enable = gr.Checkbox(False, label="Enable")
-            img = gr.Image(label="Sample Image", source="upload", interactive=True, type="pil", elem_id="image")   
+            img = gr.Image(label="Sample Image", source="upload", interactive=True, type="pil", elem_id="image")
             with gr.Row():
-                try:
-                    from srmodule.colorfix import adain_color_fix, wavelet_color_fix
+                if colorfix:
                     METHODS = ['A1111', 'Wavelet', 'AdaIN']
                     method = gr.Dropdown(METHODS, label="Method", value='A1111')
-                except ImportError:
+                else:
                     METHODS = ['A1111']
-                    method = gr.Textbox(value='A1111', visible=False)         
+                    method = gr.Textbox(value='A1111', visible=False)
                 extraProcessVisiable = extraImagesAvaliable()
                 if len(METHODS) == 1:
                     extraProcessVisiable = False
