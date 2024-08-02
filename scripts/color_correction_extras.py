@@ -54,6 +54,9 @@ class ColorCorrectionExtras(scripts_postprocessing.ScriptPostprocessing):
     name = NAME
     order = 21000
 
+    def __init__(self):
+        self.init_image = None
+
     def ui(self):
         global METHODS
         with (
@@ -64,6 +67,7 @@ class ColorCorrectionExtras(scripts_postprocessing.ScriptPostprocessing):
             if not InputAccordion:
                 enable = gr.Checkbox(False, label="Enable")
             img = gr.Image(label="Sample Image", source="upload", interactive=True, type="pil", elem_id="image")
+            gr.Markdown("*if not image provided, init image is used*")
             with gr.Row():
                 if colorfix:
                     METHODS = ['A1111', 'Wavelet', 'AdaIN']
@@ -83,11 +87,16 @@ class ColorCorrectionExtras(scripts_postprocessing.ScriptPostprocessing):
         }
         return args
 
+
+    def process_firstpass(self, pp: scripts_postprocessing.PostprocessedImage, **args):
+        self.init_image = pp.image.copy()
+
+
     def process(self, pp: scripts_postprocessing.PostprocessedImage, **args):
         if args['enable'] == False:
             return
         targetImage = copy.copy(pp.image)
-        sampleImage = args['img']
+        sampleImage = (args and args['img']) or self.init_image
         method = args['method']
         extraProcess = args['extraProcess']
 
